@@ -11,13 +11,60 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { connect } from 'react-redux';
+import { Actions } from 'react-native-router-flux';
+import * as actions from '../../actions/auth';
 
-type Props = {};
+import { Spinner } from '../common';
 
-export default class Login extends Component<Props> {
+type Props = {
+  loginUser: Function,
+  loading: String,
+  error: String,
+  token: String
+};
+
+class Login extends Component<Props> {
   constructor(props) {
     super(props);
-    this.state = {username: '', password: ''};
+    this.state = { username: '', password: '' };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.token !== null) {
+      Actions.keyfob();
+    }
+  }
+
+  handleSubmit = () => {
+    const { username, password } = this.state;
+
+    this.props.loginUser({ username, password });
+  }
+
+  renderError() {
+    if (this.props.error) {
+      return (
+        <View style={styles.errorContainer}>
+            <Text style={{ color: '#fff' }}>{this.props.error}</Text>
+        </View>
+      );
+    }
+  }
+
+  renderButton() {
+    if (this.props.loading) {
+      return <Spinner size="large" style={{ paddingTop: 20 }} />;
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.submit}
+        onPress={this.handleSubmit}
+        disabled={false}>
+        <Text style={styles.text}>Submit</Text>
+      </TouchableOpacity>
+    );
   }
 
   render() {
@@ -33,18 +80,18 @@ export default class Login extends Component<Props> {
         </View>
         <View style={styles.rowContainer}>
           <TextInput
+            secureTextEntry
+            autoCapitalize='none'
             style={styles.textField}
             placeholder={'password'}
             onChangeText={(text) => {this.setState((previous) => ({...previous, password: text}))}}
           />
         </View>
         <View style={styles.rowContainer}>
-          <TouchableOpacity
-            style={styles.submit}
-            onPress={() => {}}
-            disabled={false}>
-            <Text style={styles.text}>Submit</Text>
-          </TouchableOpacity>
+          {this.renderError()}
+        </View>
+        <View style={styles.rowContainer}>
+          {this.renderButton()}
         </View>
       </View>
     );
@@ -104,4 +151,18 @@ const styles = StyleSheet.create({
     marginTop: 12,
     padding: 10,
   },
+  errorContainer: { 
+    backgroundColor: 'darkred', 
+    marginTop: 20, 
+    marginBottom: 10,
+    padding: 10
+  }
 });
+
+const mapStateToProps = ({ auth }) => {
+  const { token, error, loading } = auth;
+
+  return { token, error, loading };
+};
+
+export default connect(mapStateToProps, actions)(Login);

@@ -3,18 +3,19 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Provider } from 'react-redux';
+import Router from './Router';
+import store from './store';
 
 type Props = {};
 
 export default class App extends Component<Props> {
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.instructions}>
-          Welcome to the TARDIS coding exercise! Please read the README.md for more instructions on what to implement.
-        </Text>
-      </View>
+      <Provider store={store}>
+        <Router />
+      </Provider>
     );
   }
 }

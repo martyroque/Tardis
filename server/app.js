@@ -11,14 +11,21 @@ app.use('/manual', express.static(path.join(__dirname, 'manual')));
 // Authorization
 
 function authorization(req, res, next) {
-  if (req.get('Authorization') !== 'access_token') {
-    console.log('missing Authorization header');
-    res.sendStatus(401).end();
-    next(Error('Not authorized'));
-    return;
-  }
+  // if (req.get('Authorization') !== 'access_token') {
+  //   console.log('missing Authorization header');
+  //   res.sendStatus(401).end();
+  //   next(Error('Not authorized'));
+  //   return;
+  // }
 
-  next();
+  jwt.verify(req.get('Authorization'), 'client_secret', function(err, decoded) {
+    if (err) { 
+      console.log(err);
+      next(Error('Not authorized'));
+    }
+
+    next();
+  });
 }
 
 app.use(['/keyfob'], authorization);
